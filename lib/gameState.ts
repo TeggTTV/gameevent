@@ -55,6 +55,7 @@ const DATA_DIR = path.join(process.cwd(), '.data');
 const SNAPSHOT_FILE = path.join(DATA_DIR, 'rooms.json');
 const SNAPSHOT_TMP_FILE = path.join(DATA_DIR, 'rooms.tmp.json');
 const MAX_EVENT_HISTORY = 300;
+const STORE_LISTING_CAP = 30;
 const SINGLE_INSTANCE_ROOM_CODE = 'EVENT1';
 const SINGLE_INSTANCE_STARTING_BUDGET = 100;
 const SINGLE_INSTANCE_TIMER_DURATION = 20 * 60;
@@ -256,21 +257,26 @@ function startRuntimeTimers(room: Room, code: string) {
   const existingEndTimer = roomTimers.get(roomCode);
   if (existingEndTimer) clearTimeout(existingEndTimer);
 
-  // Start item spawner (every 5 seconds, chance to add 1-3 items)
+  // Start item spawner (every 5 seconds, chance to restock multiple items)
   const spawner = setInterval(() => {
     if (room.status !== RoomStatus.ACTIVE) {
       clearInterval(spawner);
       return;
     }
     if (Math.random() < 0.7) {
-      const count = 1 + Math.floor(Math.random() * 3);
-      const newItems = generateStoreListings(count);
-      room.marketplace.push(...newItems);
-
       const storeListings = room.marketplace.filter(l => l.sellerId === '__store__');
-      if (storeListings.length > 30) {
-        const removeCount = storeListings.length - 30;
-        const toRemove = new Set(storeListings.slice(0, removeCount).map(l => l.id));
+      const remainingCapacity = Math.max(0, STORE_LISTING_CAP - storeListings.length);
+
+      if (remainingCapacity > 0) {
+        const count = 1 + Math.floor(Math.random() * remainingCapacity);
+        const newItems = generateStoreListings(count);
+        room.marketplace.push(...newItems);
+      }
+
+      const refreshedStoreListings = room.marketplace.filter(l => l.sellerId === '__store__');
+      if (refreshedStoreListings.length > STORE_LISTING_CAP) {
+        const removeCount = refreshedStoreListings.length - STORE_LISTING_CAP;
+        const toRemove = new Set(refreshedStoreListings.slice(0, removeCount).map(l => l.id));
         room.marketplace = room.marketplace.filter(l => !toRemove.has(l.id));
       }
     }
@@ -371,7 +377,7 @@ export function purchaseItem(
   offerPrice?: number
 ): { sale?: SaleRecord; team: Team; error?: string } | { error: string } {
   const room = rooms.get(code.toUpperCase());
-  if (!room) return { error: 'Room not found' };
+  if (!room) return { error: 'Item no longer available' };
   if (room.status !== RoomStatus.ACTIVE) return { error: 'Game is not active' };
 
   const team = room.teams.find(t => t.id === teamId);
