@@ -50,6 +50,14 @@ This MVP currently stores active game state in process memory. In production, th
 BUSYTHRIFT_SINGLE_INSTANCE=true
 ```
 
+Enable the single-instance UI flow (no room-code prompt for teams):
+
+```bash
+NEXT_PUBLIC_SINGLE_INSTANCE_MODE=true
+```
+
+When single-instance mode is enabled, teams join one shared room and the starting budget is fixed at `$100`.
+
 Do not run multiple app instances with this in-memory store. Use a shared datastore (for example Redis/Postgres) before horizontal scaling.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

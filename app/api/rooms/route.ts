@@ -1,4 +1,4 @@
-import { createRoom } from '@/lib/gameState';
+import { createRoom, getOrCreateSingleInstanceRoom } from '@/lib/gameState';
 import { issueFacilitatorToken } from '@/lib/auth';
 
 const MIN_BUDGET = 100;
@@ -14,6 +14,16 @@ function clamp(n: number, min: number, max: number): number {
 
 export async function POST(request: Request) {
   try {
+    if (process.env.BUSYTHRIFT_SINGLE_INSTANCE === 'true') {
+      const room = getOrCreateSingleInstanceRoom();
+      return Response.json({
+        code: room.code,
+        facilitatorId: room.facilitatorId,
+        facilitatorToken: issueFacilitatorToken(room.code, room.facilitatorId),
+        config: room.config,
+      });
+    }
+
     const body = await request.json();
     const { startingBudget, timerDuration, maxTeams } = body;
 

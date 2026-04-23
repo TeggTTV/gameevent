@@ -55,6 +55,10 @@ const DATA_DIR = path.join(process.cwd(), '.data');
 const SNAPSHOT_FILE = path.join(DATA_DIR, 'rooms.json');
 const SNAPSHOT_TMP_FILE = path.join(DATA_DIR, 'rooms.tmp.json');
 const MAX_EVENT_HISTORY = 300;
+const SINGLE_INSTANCE_ROOM_CODE = 'EVENT1';
+const SINGLE_INSTANCE_STARTING_BUDGET = 100;
+const SINGLE_INSTANCE_TIMER_DURATION = 20 * 60;
+const SINGLE_INSTANCE_MAX_TEAMS = 10;
 
 function assertSupportedDeploymentMode() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -140,6 +144,40 @@ export function createRoom(startingBudget: number, timerDuration: number, maxTea
   roomEventCounters.set(code, roomEventCounters.get(code) ?? 0);
   roomEventHistory.set(code, roomEventHistory.get(code) ?? []);
   schedulePersist();
+  return room;
+}
+
+export function getOrCreateSingleInstanceRoom(): Room {
+  assertSupportedDeploymentMode();
+
+  const existing = rooms.get(SINGLE_INSTANCE_ROOM_CODE);
+  if (existing) {
+    if (existing.config.startingBudget !== SINGLE_INSTANCE_STARTING_BUDGET) {
+      existing.config.startingBudget = SINGLE_INSTANCE_STARTING_BUDGET;
+      schedulePersist();
+    }
+    return existing;
+  }
+
+  const room: Room = {
+    code: SINGLE_INSTANCE_ROOM_CODE,
+    status: RoomStatus.LOBBY,
+    config: {
+      startingBudget: SINGLE_INSTANCE_STARTING_BUDGET,
+      timerDuration: SINGLE_INSTANCE_TIMER_DURATION,
+      maxTeams: SINGLE_INSTANCE_MAX_TEAMS,
+    },
+    facilitatorId: `facilitator_single_${Date.now()}`,
+    teams: [],
+    marketplace: [],
+  };
+
+  rooms.set(SINGLE_INSTANCE_ROOM_CODE, room);
+  roomSubscribers.set(SINGLE_INSTANCE_ROOM_CODE, new Map());
+  roomEventCounters.set(SINGLE_INSTANCE_ROOM_CODE, roomEventCounters.get(SINGLE_INSTANCE_ROOM_CODE) ?? 0);
+  roomEventHistory.set(SINGLE_INSTANCE_ROOM_CODE, roomEventHistory.get(SINGLE_INSTANCE_ROOM_CODE) ?? []);
+  schedulePersist();
+
   return room;
 }
 
