@@ -14,7 +14,7 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:30000](http://localhost:30000) with your browser to see the result.
 
 ## Environment Setup
 
@@ -31,6 +31,16 @@ openssl rand -hex 32
 ```
 
 Set the generated value as `LOCAL_AUTH_SECRET`. In production, this variable is required and the server will not sign/verify tokens without it.
+
+Set `NEXT_PUBLIC_APP_URL` to control which host is used for room-share links:
+
+```bash
+# development
+NEXT_PUBLIC_APP_URL=http://localhost:30000
+
+# production
+NEXT_PUBLIC_APP_URL=https://aixbusinessevent.vercel.app
+```
 
 ## Production Note
 

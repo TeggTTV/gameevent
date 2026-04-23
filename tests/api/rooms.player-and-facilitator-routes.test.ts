@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getPublicAppUrl } from '@/lib/appUrl';
+
+const API_BASE_URL = getPublicAppUrl();
 
 const verifyTokenMock = vi.fn();
 const getBearerTokenMock = vi.fn();
@@ -48,7 +51,7 @@ describe('api routes: player and facilitator actions', () => {
     getBearerTokenMock.mockReturnValue('bad-token');
     verifyTokenMock.mockReturnValue(null);
 
-    const req = new Request('http://localhost/api/rooms/abcde/start', { method: 'POST' });
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/start`, { method: 'POST' });
     const res = await POST(req, { params: Promise.resolve({ code: 'abcde' }) });
 
     expect(res.status).toBe(401);
@@ -67,7 +70,7 @@ describe('api routes: player and facilitator actions', () => {
     });
     startGameMock.mockReturnValue({ room: { status: 'active', endsAt: 12345 } });
 
-    const req = new Request('http://localhost/api/rooms/abcde/start', { method: 'POST' });
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/start`, { method: 'POST' });
     const res = await POST(req, { params: Promise.resolve({ code: 'abcde' }) });
 
     expect(res.status).toBe(200);
@@ -81,7 +84,7 @@ describe('api routes: player and facilitator actions', () => {
     getBearerTokenMock.mockReturnValue('token');
     verifyTokenMock.mockReturnValue({ roomCode: 'ABCDE', role: 'facilitator' });
 
-    const req = new Request('http://localhost/api/rooms/abcde/buy', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/buy`, {
       method: 'POST',
       body: JSON.stringify({ listingId: 'l1' }),
       headers: { 'Content-Type': 'application/json' },
@@ -103,7 +106,7 @@ describe('api routes: player and facilitator actions', () => {
     });
     purchaseItemMock.mockReturnValue({ team: { id: 'team_1', budget: 400 } });
 
-    const req = new Request('http://localhost/api/rooms/abcde/buy', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/buy`, {
       method: 'POST',
       body: JSON.stringify({ listingId: 'listing_1' }),
       headers: { 'Content-Type': 'application/json' },
@@ -126,7 +129,7 @@ describe('api routes: player and facilitator actions', () => {
       exp: Date.now() + 1000,
     });
 
-    const req = new Request('http://localhost/api/rooms/abcde/list', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/list`, {
       method: 'POST',
       body: JSON.stringify({ itemId: 'item_1', askingPrice: 0 }),
       headers: { 'Content-Type': 'application/json' },
@@ -151,7 +154,7 @@ describe('api routes: player and facilitator actions', () => {
     unlistItemMock.mockReturnValue({ team: { id: 'team_1' } });
     getTeamDataMock.mockReturnValue({ id: 'team_1', budget: 500, inventory: [] });
 
-    const req = new Request('http://localhost/api/rooms/abcde/unlist', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/unlist`, {
       method: 'POST',
       body: JSON.stringify({ listingId: 'listing_1' }),
       headers: { 'Content-Type': 'application/json' },
@@ -182,7 +185,7 @@ describe('api routes: player and facilitator actions', () => {
       team: { id: 'team_1', budget: 450 },
     });
 
-    const req = new Request('http://localhost/api/rooms/abcde/scenario', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/scenario`, {
       method: 'POST',
       body: JSON.stringify({ scenarioId: 'sc_1', skip: true }),
       headers: { 'Content-Type': 'application/json' },
@@ -206,7 +209,7 @@ describe('api routes: player and facilitator actions', () => {
     });
     endGameByFacilitatorMock.mockReturnValue({ room: { status: 'ended' } });
 
-    const req = new Request('http://localhost/api/rooms/abcde/end', { method: 'POST' });
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/end`, { method: 'POST' });
     const res = await POST(req, { params: Promise.resolve({ code: 'abcde' }) });
 
     expect(res.status).toBe(200);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Viewport } from "next";
 import { DM_Sans, Fraunces, JetBrains_Mono } from "next/font/google";
+import { getPublicAppUrl } from "@/lib/appUrl";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -24,6 +25,7 @@ const jetBrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Busy Thrift — Competitive Thrift Tycoon",
   description: "A real-time multiplayer text-based tycoon game. Buy thrifted clothing and resell it for maximum profit!",
+  metadataBase: new URL(getPublicAppUrl()),
 };
 
 export const viewport: Viewport = {

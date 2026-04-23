@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { use } from 'react';
+import { getPublicAppUrl } from '@/lib/appUrl';
 
 interface TeamInfo {
   id: string;
@@ -79,7 +80,8 @@ export default function LobbyPage({ params }: { params: Promise<{ code: string }
   }
 
   function copyCode() {
-    navigator.clipboard.writeText(code.toUpperCase());
+    const roomUrl = `${getPublicAppUrl()}/room/${code.toUpperCase()}/lobby`;
+    navigator.clipboard.writeText(roomUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -141,7 +143,7 @@ export default function LobbyPage({ params }: { params: Promise<{ code: string }
             className="text-xs mt-3 transition-colors"
             style={{ color: copied ? 'var(--accent-success)' : 'var(--text-muted)' }}
           >
-            {copied ? 'Copied to clipboard' : 'Tap to copy — share with teams'}
+            {copied ? 'Copied room link' : 'Tap to copy room link'}
           </p>
         </div>
 

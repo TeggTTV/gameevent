@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getPublicAppUrl } from '@/lib/appUrl';
+
+const API_BASE_URL = getPublicAppUrl();
 
 const getRoomMock = vi.fn();
 
@@ -15,7 +18,7 @@ describe('api route: room details', () => {
     const { GET } = await import('@/app/api/rooms/[code]/route');
     getRoomMock.mockReturnValue(undefined);
 
-    const res = await GET(new Request('http://localhost/api/rooms/abcde'), {
+    const res = await GET(new Request(`${API_BASE_URL}/api/rooms/abcde`), {
       params: Promise.resolve({ code: 'abcde' }),
     });
 
@@ -34,7 +37,7 @@ describe('api route: room details', () => {
       endsAt: 200,
     });
 
-    const res = await GET(new Request('http://localhost/api/rooms/abcde'), {
+    const res = await GET(new Request(`${API_BASE_URL}/api/rooms/abcde`), {
       params: Promise.resolve({ code: 'abcde' }),
     });
 

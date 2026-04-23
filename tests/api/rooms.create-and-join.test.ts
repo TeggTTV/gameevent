@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getPublicAppUrl } from '@/lib/appUrl';
+
+const API_BASE_URL = getPublicAppUrl();
 
 const createRoomMock = vi.fn();
 const joinRoomMock = vi.fn();
@@ -33,7 +36,7 @@ describe('api routes: create and join room', () => {
     });
     issueFacilitatorTokenMock.mockReturnValue('fac-token');
 
-    const req = new Request('http://localhost/api/rooms', {
+    const req = new Request(`${API_BASE_URL}/api/rooms`, {
       method: 'POST',
       body: JSON.stringify({
         startingBudget: 999999,
@@ -55,7 +58,7 @@ describe('api routes: create and join room', () => {
   it('returns 400 for missing create-room fields', async () => {
     const { POST } = await import('@/app/api/rooms/route');
 
-    const req = new Request('http://localhost/api/rooms', {
+    const req = new Request(`${API_BASE_URL}/api/rooms`, {
       method: 'POST',
       body: JSON.stringify({ startingBudget: 500 }),
       headers: { 'Content-Type': 'application/json' },
@@ -69,7 +72,7 @@ describe('api routes: create and join room', () => {
   it('returns 400 for missing join names', async () => {
     const { POST } = await import('@/app/api/rooms/[code]/join/route');
 
-    const req = new Request('http://localhost/api/rooms/abcde/join', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/join`, {
       method: 'POST',
       body: JSON.stringify({ teamName: 'Blue Wolves' }),
       headers: { 'Content-Type': 'application/json' },
@@ -94,7 +97,7 @@ describe('api routes: create and join room', () => {
     });
     issuePlayerTokenMock.mockReturnValue('player-token');
 
-    const req = new Request('http://localhost/api/rooms/abcde/join', {
+    const req = new Request(`${API_BASE_URL}/api/rooms/abcde/join`, {
       method: 'POST',
       body: JSON.stringify({ teamName: 'Blue Wolves', playerName: 'Alice' }),
       headers: { 'Content-Type': 'application/json' },
