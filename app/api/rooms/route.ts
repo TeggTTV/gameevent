@@ -41,7 +41,25 @@ export async function POST(request: Request) {
       facilitatorToken: issueFacilitatorToken(room.code, room.facilitatorId),
       config: room.config,
     });
-  } catch {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message.includes('BUSYTHRIFT_SINGLE_INSTANCE')) {
+        return Response.json({
+          error: 'Production setup required: set BUSYTHRIFT_SINGLE_INSTANCE=true for single-instance deployment or move game state to a shared datastore.',
+        }, { status: 503 });
+      }
+
+      if (error.message.includes('LOCAL_AUTH_SECRET')) {
+        return Response.json({
+          error: 'Production setup required: set LOCAL_AUTH_SECRET to a strong random value.',
+        }, { status: 503 });
+      }
+    }
+
+    if (error instanceof SyntaxError) {
+      return Response.json({ error: 'Invalid request body' }, { status: 400 });
+    }
+
     return Response.json({ error: 'Invalid request' }, { status: 400 });
   }
 }

@@ -106,7 +106,6 @@ function schedulePersist() {
   }, 400);
 }
 
-assertSupportedDeploymentMode();
 loadPersistedRooms();
 
 // ===== Room Management =====
@@ -123,6 +122,7 @@ function generateRoomCode(): string {
 }
 
 export function createRoom(startingBudget: number, timerDuration: number, maxTeams: number): Room {
+  assertSupportedDeploymentMode();
   const code = generateRoomCode();
   const facilitatorId = `facilitator_${Date.now()}`;
 
